@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { authClient } from '@/lib/auth/client';
+import { NeonAuthUIProvider, UserButton } from "@neondatabase/auth-ui";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -26,8 +28,18 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+      // need to suppress warning due to the way neonauthuiprovider works
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <NeonAuthUIProvider authClient={authClient} emailOTP social={{ providers: ['google'] }}>
+          <header className="flex h-16 items-center justify-between border-b p-4">
+            <h1 className="text-xl font-bold">starter neon auth provider</h1>
+            <UserButton size={'icon'} />
+          </header>
+          {children}
+        </NeonAuthUIProvider>
+      </body>
     </html>
   );
 }
