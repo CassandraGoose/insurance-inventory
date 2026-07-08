@@ -1,26 +1,31 @@
 
 
+
+
 BASIC INSTRUCTIONS
 
+## SUPPLEMENTAL RESOURCES
 
-## SUPPLEMENTAL RESOURCES  
-1.	How to clone a project to IntelliJ using Git?
+1. How to clone a project to IntelliJ using Git?
 
 
 2. How to create a branch and start Development?
 
+
 > Press the '+' button located near your branch name. In the dropdown list, press the 'New branch' button. This will allow you to create a name for your branch. Once the branch has been named, you can select 'Create Branch' to push the branch to your repository.
 
 - IntelliJ method
+
 > In IntelliJ, Go to the 'Git' button on the top toolbar. Select the new branch option and create a name for the branch. Make sure checkout branch is selected and press create. You can now add a commit message and push the new branch to the local repo.
 
 ## SUPPORT
 
+
 ## FUTURE USE
+
 Take this opportunity to create or add to a simple resume portfolio to highlight and showcase your work for future use in career search, experience, and education!
 
-
-## NEXT JS Project GENERATION README BELOW: 
+## NEXT JS Project GENERATION README BELOW:
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
