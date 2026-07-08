@@ -93,7 +93,6 @@ export abstract class InventoryItem {
   }
 
   abstract getCoverageTypeExplanation(): string;
-
 }
 
 export class StandardItem extends InventoryItem {
@@ -109,6 +108,10 @@ export class SpecialtyItem extends InventoryItem {
     super(data);
     // todo can we format that here Or later? price
     this._currentValue = data.currentValue != null ? Number(data.currentValue) : null;
+  }
+
+  get currentValue(): number | null {
+    return this._currentValue;
   }
 
   getCoverageTypeExplanation(): string {

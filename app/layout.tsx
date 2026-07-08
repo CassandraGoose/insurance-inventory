@@ -37,7 +37,7 @@ export default function RootLayout({
           <header className="flex h-16 items-center justify-between border-b p-4">
             <h1 className="text-xl font-bold">starter neon auth provider</h1>
             <nav>
-              <Link href="dashboard">Inventory Items</Link>
+              <Link href="/items">Inventory Items</Link>
             </nav>
             <UserButton size={"icon"} />
           </header>

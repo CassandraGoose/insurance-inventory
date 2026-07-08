@@ -52,10 +52,51 @@ export async function getUserInventoryItems(): Promise<InventoryItem[]> {
       coverageType: row.item.coverage_type,
       category: new Category(row.category.id, row.category.name, row.category.coverage_type),
       roomLocation: new RoomLocation(row.room_location.id, row.room_location.name),
-      allowedCategories: row.category.coverage_type === 'standard' ? standardCategories : specialtyCategories,
+      allowedCategories:
+        row.category.coverage_type === "standard" ? standardCategories : specialtyCategories,
     };
     return record.coverageType === "specialty"
       ? new SpecialtyItem(record)
       : new StandardItem(record);
   });
+}
+
+export async function createInventoryItem(data: {
+  name: string;
+  description?: string;
+  brand?: string;
+  model?: string;
+  identificationNumber?: string;
+  purchasePrice: number;
+  purchaseDate?: string;
+  currentValue?: number;
+  coverageType: "standard" | "specialty";
+  categoryId: string;
+  roomLocationId: string;
+}): Promise<void> {
+  const user = await getAuthUser();
+
+  await db.insert(item).values({
+    id: crypto.randomUUID(),
+    user_id: user.id,
+    room_location: data.roomLocationId,
+    coverage_type: data.coverageType,
+    name: data.name,
+    category_id: data.categoryId,
+    description: data.description ?? null,
+    brand: data.brand ?? null,
+    model: data.model ?? null,
+    identification_number: data.identificationNumber ?? null,
+    purchase_price: data.purchasePrice.toString(),
+    purchase_date: data.purchaseDate ?? null,
+    current_value: data.currentValue?.toString() ?? null,
+  });
+}
+
+export async function getCategories() {
+  return db.select().from(category);
+}
+
+export async function getRoomLocations() {
+  return db.select().from(room_location);
 }
