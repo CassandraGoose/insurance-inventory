@@ -19,9 +19,12 @@ import { sql } from "drizzle-orm";
 
 export const neonAuth = pgSchema("neon_auth");
 
+export const coverageTypeEnum = pgEnum("coverage_type", ["standard", "specialty"]);
+
 export const category = pgTable("category", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
+  coverage_type: coverageTypeEnum('coverage_type').notNull(),
 });
 
 export const room_location = pgTable("room_location", {
@@ -29,7 +32,6 @@ export const room_location = pgTable("room_location", {
   name: text("name").notNull(),
 });
 
-export const coverageTypeEnum = pgEnum("coverage_type", ["standard", "specialty"]);
 export const item = pgTable("item", {
   id: uuid("id").primaryKey(),
   user_id: uuid("user_id").references(() => userInNeonAuth.id, { onDelete: "cascade" }),

@@ -20,6 +20,7 @@ export interface InventoryItemRecord {
   coverageType: "standard" | "specialty";
   roomLocation: RoomLocation;
   category: Category;
+  allowedCategories: string[];
 }
 
 export abstract class InventoryItem {
@@ -35,6 +36,7 @@ export abstract class InventoryItem {
   private _coverageType: "standard" | "specialty";
   private _roomLocation: RoomLocation;
   private _category: Category;
+  private _allowedCategories: string[];
 
   constructor(data: InventoryItemRecord) {
     this._id = data.id;
@@ -50,6 +52,7 @@ export abstract class InventoryItem {
     this._coverageType = data.coverageType;
     this._roomLocation = data.roomLocation;
     this._category = data.category;
+    this._allowedCategories = data.allowedCategories;
   }
 
   get id(): string {
@@ -85,40 +88,21 @@ export abstract class InventoryItem {
   get category(): Category {
     return this._category;
   }
+  get allowedCategories(): string[] {
+    return this._allowedCategories;
+  }
 
   abstract getCoverageTypeExplanation(): string;
+
 }
 
 export class StandardItem extends InventoryItem {
-  readonly allowedCategories = [
-    "Furniture",
-    "Appliances",
-    "Electronics",
-    "Clothing",
-    "Books",
-    "Music Media",
-    "Electronic Media",
-  ];
-
   getCoverageTypeExplanation(): string {
     return "Coverage will likely include the original cost of the item, not adjusted for inflation or the cost of an equivalent replacement. This may be less than you originally paid.";
   }
 }
 
 export class SpecialtyItem extends InventoryItem {
-  // todo this needs to come from the database!
-  readonly allowedCategories = [
-    "Furniture (Designer)",
-    "Clothing (Designer)",
-    "Musical Instruments",
-    "Collectible Cards",
-    "Jewelry (Designer)",
-    "Fine Art",
-    "Books (Collectible)",
-    "Vintage Miscellaneous",
-    "Collectible Miscellaneous",
-  ] as const;
-
   private _currentValue: number | null;
 
   constructor(data: InventoryItemRecord) {

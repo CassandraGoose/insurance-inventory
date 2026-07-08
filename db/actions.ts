@@ -29,6 +29,15 @@ export async function getUserInventoryItems(): Promise<InventoryItem[]> {
     .innerJoin(room_location, eq(item.room_location, room_location.id))
     .where(eq(item.user_id, user.id));
 
+  const allCategories = await db.select().from(category);
+  const standardCategories = allCategories
+    .filter((c) => c.coverage_type === "standard")
+    .map((c) => c.name);
+
+  const specialtyCategories = allCategories
+    .filter((c) => c.coverage_type === "specialty")
+    .map((c) => c.name);
+
   return rows.map((row) => {
     const record: InventoryItemRecord = {
       id: row.item.id,
@@ -41,8 +50,9 @@ export async function getUserInventoryItems(): Promise<InventoryItem[]> {
       purchaseDate: row.item.purchase_date ? new Date(row.item.purchase_date) : null,
       currentValue: row.item.current_value ? Number(row.item.current_value) : null,
       coverageType: row.item.coverage_type,
-      category: new Category(row.category.id, row.category.name),
+      category: new Category(row.category.id, row.category.name, row.category.coverage_type),
       roomLocation: new RoomLocation(row.room_location.id, row.room_location.name),
+      allowedCategories: row.category.coverage_type === 'standard' ? standardCategories : specialtyCategories,
     };
     return record.coverageType === "specialty"
       ? new SpecialtyItem(record)
