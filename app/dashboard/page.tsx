@@ -1,17 +1,15 @@
-import { auth } from '@/lib/auth/server'
-import { db } from '@/db/drizzle'
-import { item } from '@/db/schema'
-import { redirect } from 'next/navigation'
-import { eq } from 'drizzle-orm'
+import { auth } from "@/lib/auth/server";
+import { redirect } from "next/navigation";
+import { getUserInventoryItems } from "@/db/actions";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const { data: session } = await auth.getSession()
+  const { data: session } = await auth.getSession();
 
-  if (!session?.user) redirect('/auth/sign-in')
+  if (!session?.user) redirect("/auth/sign-in");
 
-  const items = await db.select().from(item).where(eq(item.user_id, session.user.id))
+  const items = await getUserInventoryItems();
 
   return (
     <div>
@@ -23,10 +21,10 @@ export default async function DashboardPage() {
       ) : (
         <ul>
           {items.map((item) => (
-            <li key={item.id}>{item.name}</li>
+            <li key={item.id}>{JSON.stringify(item)}</li>
           ))}
         </ul>
       )}
     </div>
-  )
+  );
 }

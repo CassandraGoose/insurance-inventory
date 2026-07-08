@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm/relations'
+import { relations } from "drizzle-orm/relations";
 import {
   organizationInNeonAuth,
   invitationInNeonAuth,
@@ -6,7 +6,7 @@ import {
   sessionInNeonAuth,
   accountInNeonAuth,
   memberInNeonAuth,
-} from './schema'
+} from "./schema";
 
 export const invitationInNeonAuthRelations = relations(invitationInNeonAuth, ({ one }) => ({
   organizationInNeonAuth: one(organizationInNeonAuth, {
@@ -17,33 +17,33 @@ export const invitationInNeonAuthRelations = relations(invitationInNeonAuth, ({ 
     fields: [invitationInNeonAuth.inviterId],
     references: [userInNeonAuth.id],
   }),
-}))
+}));
 
 export const organizationInNeonAuthRelations = relations(organizationInNeonAuth, ({ many }) => ({
   invitationInNeonAuths: many(invitationInNeonAuth),
   memberInNeonAuths: many(memberInNeonAuth),
-}))
+}));
 
 export const userInNeonAuthRelations = relations(userInNeonAuth, ({ many }) => ({
   invitationInNeonAuths: many(invitationInNeonAuth),
   sessionInNeonAuths: many(sessionInNeonAuth),
   accountInNeonAuths: many(accountInNeonAuth),
   memberInNeonAuths: many(memberInNeonAuth),
-}))
+}));
 
 export const sessionInNeonAuthRelations = relations(sessionInNeonAuth, ({ one }) => ({
   userInNeonAuth: one(userInNeonAuth, {
     fields: [sessionInNeonAuth.userId],
     references: [userInNeonAuth.id],
   }),
-}))
+}));
 
 export const accountInNeonAuthRelations = relations(accountInNeonAuth, ({ one }) => ({
   userInNeonAuth: one(userInNeonAuth, {
     fields: [accountInNeonAuth.userId],
     references: [userInNeonAuth.id],
   }),
-}))
+}));
 
 export const memberInNeonAuthRelations = relations(memberInNeonAuth, ({ one }) => ({
   organizationInNeonAuth: one(organizationInNeonAuth, {
@@ -54,4 +54,4 @@ export const memberInNeonAuthRelations = relations(memberInNeonAuth, ({ one }) =
     fields: [memberInNeonAuth.userId],
     references: [userInNeonAuth.id],
   }),
-}))
+}));
