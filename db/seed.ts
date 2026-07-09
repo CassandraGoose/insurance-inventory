@@ -20,7 +20,6 @@ const categories: { name: string; coverage_type: "standard" | "specialty" }[] = 
   { name: "Collectible Miscellaneous", coverage_type: "specialty" },
 ];
 
-
 const room_locations = [
   { name: "Living" },
   { name: "Family" },

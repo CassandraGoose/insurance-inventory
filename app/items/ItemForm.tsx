@@ -1,40 +1,74 @@
 "use client";
 import { useActionState } from "react";
+import { useEffect, useState } from "react";
+import { getCategories, getRoomLocations } from "@/db/actions";
+import { InventoryItemRecord } from "@/lib/models/inventory-item";
 
 export default function ItemForm({
-  coverageType,
-  setCoverageType,
-  filteredCategories,
-  roomLocations,
   action,
+  existingData = null,
 }: {
-  coverageType: string;
-  setCoverageType: (type: "standard" | "specialty") => void;
-  filteredCategories: { id: string; name: string; coverage_type: string }[];
-  roomLocations: { name: string; id: string }[];
   action: (
     prev: { error?: string } | null,
     formData: FormData,
   ) => Promise<{ error?: string } | null>;
+  existingData?: InventoryItemRecord | null;
 }) {
-  const [state, formAction, pending] = useActionState(action, null);
-// todo i need to add validation (when i am at that point in the rubric) and i need to also make it clear to the user how to use the form via required strings and red and disabling the submit button until read and a cancel. 
+  const [loading, setLoading] = useState(true);
+  const [, formAction, pending] = useActionState(action, null);
+  const [coverageType, setCoverageType] = useState<"standard" | "specialty">(
+    existingData?.coverageType ?? "standard",
+  );
+  const [categories, setCategories] = useState<
+    { id: string; name: string; coverage_type: string }[]
+  >([]);
+  const [roomLocations, setRoomLocations] = useState<{ id: string; name: string }[]>([]);
+  const filteredCategories = categories.filter(
+    (category) => category.coverage_type === coverageType,
+  );
+
+  useEffect(() => {
+    async function loadData() {
+      const [categories, rooms] = await Promise.all([getCategories(), getRoomLocations()]);
+      setCategories(categories);
+      setRoomLocations(rooms);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
+  if (loading)
+    return (
+      <div>
+        <p>Laoding...todo add spinner</p>
+      </div>
+    );
+  // todo i need to add validation (when i am at that point in the rubric) and i need to also make it clear to the user how to use the form via required strings and red and disabling the submit button until read and a cancel.
   return (
     <form action={formAction} className="space-y-4">
-      {state?.error && <p className="text-red-600">Error: {state.error}</p>}
-
       <div>
         <label htmlFor="name" className="block font-medium">
           Name *
         </label>
-        <input id="name" name="name" required className="w-full rounded border p-2" />
+        <input
+          id="name"
+          name="name"
+          required
+          className="w-full rounded border p-2"
+          defaultValue={existingData?.name}
+        />
       </div>
-
+      {/* todo limit html items required and valid */}
       <div>
         <label htmlFor="description" className="block font-medium">
           Description
         </label>
-        <textarea id="description" name="description" className="w-full rounded border p-2" />
+        <textarea
+          id="description"
+          name="description"
+          className="w-full rounded border p-2"
+          defaultValue={existingData?.description ?? ""}
+        />
       </div>
 
       <div className="flex gap-4">
@@ -42,13 +76,23 @@ export default function ItemForm({
           <label htmlFor="brand" className="block font-medium">
             Brand
           </label>
-          <input id="brand" name="brand" className="w-full rounded border p-2" />
+          <input
+            id="brand"
+            name="brand"
+            className="w-full rounded border p-2"
+            defaultValue={existingData?.brand ?? ""}
+          />
         </div>
         <div className="flex-1">
           <label htmlFor="model" className="block font-medium">
             Model
           </label>
-          <input id="model" name="model" className="w-full rounded border p-2" />
+          <input
+            id="model"
+            name="model"
+            className="w-full rounded border p-2"
+            defaultValue={existingData?.model ?? ""}
+          />
         </div>
       </div>
 
@@ -60,6 +104,7 @@ export default function ItemForm({
           id="identificationNumber"
           name="identificationNumber"
           className="w-full rounded border p-2"
+          defaultValue={existingData?.identificationNumber ?? ""}
         />
       </div>
 
@@ -75,6 +120,7 @@ export default function ItemForm({
             step="0.01"
             required
             className="w-full rounded border p-2"
+            defaultValue={existingData?.purchasePrice ?? ""}
           />
         </div>
         <div className="flex-1">
@@ -86,6 +132,7 @@ export default function ItemForm({
             name="purchaseDate"
             type="date"
             className="w-full rounded border p-2"
+            defaultValue={existingData?.purchaseDate?.toISOString().split("T")[0] ?? ""}
           />
         </div>
       </div>
@@ -117,6 +164,7 @@ export default function ItemForm({
             type="number"
             step="0.01"
             className="w-full rounded border p-2"
+            defaultValue={existingData?.currentValue ?? ""}
           />
         </div>
       )}
@@ -125,7 +173,13 @@ export default function ItemForm({
         <label htmlFor="categoryId" className="block font-medium">
           Category *
         </label>
-        <select id="categoryId" name="categoryId" required className="w-full rounded border p-2">
+        <select
+          id="categoryId"
+          name="categoryId"
+          required
+          className="w-full rounded border p-2"
+          defaultValue={existingData?.category?.id ?? ""}
+        >
           <option value="">Select a category</option>
           {filteredCategories.map((c) => (
             <option key={c.id} value={c.id}>
@@ -144,6 +198,7 @@ export default function ItemForm({
           name="roomLocationId"
           required
           className="w-full rounded border p-2"
+          defaultValue={existingData?.roomLocation?.id ?? ""}
         >
           <option value="">Select a room</option>
           {roomLocations.map((r) => (

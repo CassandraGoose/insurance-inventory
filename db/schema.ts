@@ -24,7 +24,7 @@ export const coverageTypeEnum = pgEnum("coverage_type", ["standard", "specialty"
 export const category = pgTable("category", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  coverage_type: coverageTypeEnum('coverage_type').notNull(),
+  coverage_type: coverageTypeEnum("coverage_type").notNull(),
 });
 
 export const room_location = pgTable("room_location", {

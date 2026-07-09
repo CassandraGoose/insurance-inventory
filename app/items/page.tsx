@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
-import { getUserInventoryItems } from "@/db/actions";
+import { getUserInventoryItems, deleteInventoryItem } from "@/db/actions";
 import { SpecialtyItem } from "@/lib/models/inventory-item";
 import Link from "next/link";
 
@@ -85,13 +85,22 @@ export default async function InventoryItemsPage() {
                     {item.coverageType}
                   </span>
                 </td>
-                <td className="p-2">
+                <td className="p-2 flex flex-column justify-center items-center gap-2">
                   <Link
                     href={`/items/${item.id}/edit`}
                     className="rounded bg-gray-100 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200"
                   >
                     Edit
                   </Link>
+                  <form action={deleteInventoryItem}>
+                    <input type="hidden" name="id" value={item.id} />
+                    <button
+                      type="submit"
+                      className="rounded bg-gray-100 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200"
+                    >
+                      Delete
+                    </button>
+                  </form>
                 </td>
               </tr>
             ))}

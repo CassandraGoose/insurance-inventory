@@ -1,10 +1,13 @@
 "use client";
 import dynamic from "next/dynamic";
 
-const SignInForm = dynamic(async () => {
-  const authUI = await import("@neondatabase/auth-ui");
-  return authUI.SignInForm;
-}, { ssr: false});
+const SignInForm = dynamic(
+  async () => {
+    const authUI = await import("@neondatabase/auth-ui");
+    return authUI.SignInForm;
+  },
+  { ssr: false },
+);
 
 export default function SignInPage() {
   return (

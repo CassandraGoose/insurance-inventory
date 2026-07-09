@@ -1,32 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { createInventoryItem, getCategories, getRoomLocations } from "@/db/actions";
+import { createInventoryItem } from "@/db/actions";
 import ItemForm from "../ItemForm";
 
 type FormState = { error?: string } | null;
 
 export default function AddItemPage() {
   const router = useRouter();
-  const [coverageType, setCoverageType] = useState<"standard" | "specialty">("standard");
-  const [categories, setCategories] = useState<
-    { id: string; name: string; coverage_type: string }[]
-  >([]);
-  const [roomLocations, setRoomLocations] = useState<{ id: string; name: string }[]>([]);
-
-  useEffect(() => {
-    async function loadData() {
-      const [categories, rooms] = await Promise.all([getCategories(), getRoomLocations()]);
-      setCategories(categories);
-      setRoomLocations(rooms);
-    }
-    loadData();
-  }, []);
-
-  const filteredCategories = categories.filter(
-    (category) => category.coverage_type === coverageType,
-  );
 
   async function action(prev: FormState, formData: FormData) {
     const data = {
@@ -56,13 +37,7 @@ export default function AddItemPage() {
   return (
     <div className="mx-auto max-w-lg">
       <h1 className="mb-4 text-2xl font-bold">Add New Item</h1>
-      <ItemForm
-        action={action}
-        coverageType={coverageType}
-        setCoverageType={setCoverageType}
-        roomLocations={roomLocations}
-        filteredCategories={filteredCategories}
-      />
+      <ItemForm action={action} />
     </div>
   );
 }
