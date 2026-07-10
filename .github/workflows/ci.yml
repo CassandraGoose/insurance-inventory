@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  sast:
+    name: Semgrep scan
+    needs: [test]
+    runs-on: ubuntu-latest
+    container: returntocorp/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - run: semgrep scan --config=auto --error
+
+  build:
+    name: Vercel build
+    needs: [sast]
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+      - run: npx vercel build --prod --token=$VERCEL_TOKEN
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vercel-output
+          path: |
+            .vercel/output/
+            .next/
+          if-no-files-found: error
+
+  migrate:
+    name: Run database migrations and seed
+    needs: [build]
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEON_AUTH_BASE_URL: ${{ secrets.NEON_AUTH_BASE_URL }}
+      NEON_AUTH_COOKIE_SECRET: ${{ secrets.NEON_AUTH_COOKIE_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run migrate
+      - run: npm run seed
+
+  deploy:
+    name: Deploy to Vercel
+    needs: [migrate]
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: vercel-output
+          path: .
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
