@@ -3,19 +3,18 @@ import { useActionState } from "react";
 import { useEffect, useState } from "react";
 import { getCategories, getRoomLocations } from "@/db/actions";
 import { InventoryItemRecord } from "@/lib/models/inventory-item";
+import { FormState } from "@/lib/validations/inventory-item";
+import FormInput from "./FormInput";
 
 export default function ItemForm({
   action,
   existingData = null,
 }: {
-  action: (
-    prev: { error?: string } | null,
-    formData: FormData,
-  ) => Promise<{ error?: string } | null>;
+  action: (prev: FormState, formData: FormData) => Promise<FormState>;
   existingData?: InventoryItemRecord | null;
 }) {
   const [loading, setLoading] = useState(true);
-  const [, formAction, pending] = useActionState(action, null);
+  const [state, formAction, pending] = useActionState(action, null);
   const [coverageType, setCoverageType] = useState<"standard" | "specialty">(
     existingData?.coverageType ?? "standard",
   );
@@ -46,19 +45,13 @@ export default function ItemForm({
   // todo i need to add validation (when i am at that point in the rubric) and i need to also make it clear to the user how to use the form via required strings and red and disabling the submit button until read and a cancel.
   return (
     <form action={formAction} className="space-y-4">
-      <div>
-        <label htmlFor="name" className="block font-medium">
-          Name *
-        </label>
-        <input
-          id="name"
-          name="name"
-          required
-          className="w-full rounded border p-2"
-          defaultValue={existingData?.name}
-        />
-      </div>
-      {/* todo limit html items required and valid */}
+      <FormInput
+        id={"name"}
+        label={"Name"}
+        required
+        defaultValue={existingData?.name}
+        fieldError={state?.fieldErrors?.name}
+      />
       <div>
         <label htmlFor="description" className="block font-medium">
           Description
@@ -70,71 +63,45 @@ export default function ItemForm({
           defaultValue={existingData?.description ?? ""}
         />
       </div>
-
       <div className="flex gap-4">
-        <div className="flex-1">
-          <label htmlFor="brand" className="block font-medium">
-            Brand
-          </label>
-          <input
-            id="brand"
-            name="brand"
-            className="w-full rounded border p-2"
-            defaultValue={existingData?.brand ?? ""}
-          />
-        </div>
-        <div className="flex-1">
-          <label htmlFor="model" className="block font-medium">
-            Model
-          </label>
-          <input
-            id="model"
-            name="model"
-            className="w-full rounded border p-2"
-            defaultValue={existingData?.model ?? ""}
-          />
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor="identificationNumber" className="block font-medium">
-          Identification Number
-        </label>
-        <input
-          id="identificationNumber"
-          name="identificationNumber"
-          className="w-full rounded border p-2"
-          defaultValue={existingData?.identificationNumber ?? ""}
+        <FormInput
+          id={"brand"}
+          label={"Brand"}
+          defaultValue={existingData?.brand}
+          fieldError={state?.fieldErrors?.brand}
+        />
+        <FormInput
+          id={"model"}
+          label={"model"}
+          defaultValue={existingData?.model}
+          fieldError={state?.fieldErrors?.model}
         />
       </div>
 
+      <FormInput
+        id={"identificationNumber"}
+        label={"Identification Number"}
+        defaultValue={existingData?.identificationNumber}
+        fieldError={state?.fieldErrors?.identificationNumber}
+      />
+
       <div className="flex gap-4">
-        <div className="flex-1">
-          <label htmlFor="purchasePrice" className="block font-medium">
-            Purchase Price *
-          </label>
-          <input
-            id="purchasePrice"
-            name="purchasePrice"
-            type="number"
-            step="0.01"
-            required
-            className="w-full rounded border p-2"
-            defaultValue={existingData?.purchasePrice ?? ""}
-          />
-        </div>
-        <div className="flex-1">
-          <label htmlFor="purchaseDate" className="block font-medium">
-            Purchase Date
-          </label>
-          <input
-            id="purchaseDate"
-            name="purchaseDate"
-            type="date"
-            className="w-full rounded border p-2"
-            defaultValue={existingData?.purchaseDate?.toISOString().split("T")[0] ?? ""}
-          />
-        </div>
+        <FormInput
+          id={"purchasePrice"}
+          label={"Purchase Price"}
+          required
+          type="number"
+          step="0.01"
+          defaultValue={existingData?.purchasePrice}
+          fieldError={state?.fieldErrors?.purchasePrice}
+        />
+        <FormInput
+          id={"purchaseDate"}
+          label={"Purchase Date"}
+          type="date"
+          defaultValue={existingData?.purchaseDate?.toISOString().split("T")[0]}
+          fieldError={state?.fieldErrors?.purchaseDate}
+        />
       </div>
 
       <div>
@@ -154,24 +121,20 @@ export default function ItemForm({
       </div>
 
       {coverageType === "specialty" && (
-        <div>
-          <label htmlFor="currentValue" className="block font-medium">
-            Current Value
-          </label>
-          <input
-            id="currentValue"
-            name="currentValue"
-            type="number"
-            step="0.01"
-            className="w-full rounded border p-2"
-            defaultValue={existingData?.currentValue ?? ""}
-          />
-        </div>
+        <FormInput
+          id={"currentValue"}
+          label={"Current Value"}
+          required
+          type="number"
+          step="0.01"
+          defaultValue={existingData?.currentValue}
+          fieldError={state?.fieldErrors?.currentValue}
+        />
       )}
 
       <div>
         <label htmlFor="categoryId" className="block font-medium">
-          Category *
+          Category (Required)
         </label>
         <select
           id="categoryId"
@@ -191,7 +154,7 @@ export default function ItemForm({
 
       <div>
         <label htmlFor="roomLocationId" className="block font-medium">
-          Room Location *
+          Room Location (Required)
         </label>
         <select
           id="roomLocationId"
@@ -209,10 +172,10 @@ export default function ItemForm({
         </select>
       </div>
 
-      {/* Image upload placeholder — UI ready, not submitted yet */}
+      {/* Image upload placeholder for when i'm ready */}
       <div>
         <label htmlFor="image" className="block font-medium">
-          Image
+          Valuation Image
         </label>
         <input
           id="image"

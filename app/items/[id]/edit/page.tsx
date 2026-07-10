@@ -2,8 +2,24 @@ import { redirect } from "next/navigation";
 import { getItem, updateInventoryItem } from "@/db/actions";
 import ItemForm from "../../ItemForm";
 import { InventoryItemRecord } from "@/lib/models/inventory-item";
+import { inventoryItemSchema } from "@/lib/validations/inventory-item";
 
 type FormState = { error?: string } | null;
+
+function validateEdit(data: unknown) {
+  const parsed = inventoryItemSchema.safeParse(data);
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string[]> = {};
+    for (const err of parsed.error.issues) {
+      const path = err.path.join(".");
+      if (!fieldErrors[path]) fieldErrors[path] = [];
+      fieldErrors[path].push(err.message);
+    }
+    return { error: "Please fix the errors above.", fieldErrors };
+  }
+
+  return parsed.data;
+}
 
 export default async function EditItemPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -38,6 +54,10 @@ export default async function EditItemPage({ params }: { params: Promise<{ id: s
       categoryId: formData.get("categoryId") as string,
       roomLocationId: formData.get("roomLocationId") as string,
     };
+
+    const validationResult = validateEdit(data);
+
+    if ("error" in validationResult) return validationResult;
 
     try {
       await updateInventoryItem(id, data);
