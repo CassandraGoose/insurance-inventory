@@ -6,6 +6,7 @@ import { InventoryItemRecord } from "@/lib/models/inventory-item";
 import { CoverageType } from "@/lib/models/coverage-type";
 import { FormState } from "@/lib/validations/inventory-item";
 import FormInput from "./FormInput";
+import Link from "next/link";
 
 export default function ItemForm({
   action,
@@ -58,7 +59,7 @@ export default function ItemForm({
     );
   // todo i need to add validation (when i am at that point in the rubric) and i need to also make it clear to the user how to use the form via required strings and red and disabling the submit button until read and a cancel.
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="w-1/2 space-y-4 rounded-xl bg-[#e3dfde] p-6 shadow-sm ">
       <FormInput
         id={"name"}
         label={"Name"}
@@ -73,11 +74,11 @@ export default function ItemForm({
         <textarea
           id="description"
           name="description"
-          className="w-full rounded border p-2"
+          className="w-full rounded border p-2 bg-white"
           defaultValue={existingData?.description ?? ""}
         />
       </div>
-      <div className="flex gap-4">
+      <div className="flex space-x-8">
         <FormInput
           id={"brand"}
           label={"Brand"}
@@ -86,7 +87,7 @@ export default function ItemForm({
         />
         <FormInput
           id={"model"}
-          label={"model"}
+          label={"Model"}
           defaultValue={existingData?.model}
           fieldError={state?.fieldErrors?.model}
         />
@@ -99,7 +100,7 @@ export default function ItemForm({
         fieldError={state?.fieldErrors?.identificationNumber}
       />
 
-      <div className="flex gap-4">
+      <div className="flex space-x-8">
         <FormInput
           id={"purchasePrice"}
           label={"Purchase Price"}
@@ -127,7 +128,7 @@ export default function ItemForm({
           name="coverageType"
           value={coverageType}
           onChange={(e) => setCoverageType(e.target.value as "standard" | "specialty")}
-          className="w-full rounded border p-2"
+          className="w-full rounded border p-2 bg-white"
         >
           <option value="standard">Standard</option>
           <option value="specialty">Specialty</option>
@@ -146,67 +147,60 @@ export default function ItemForm({
         />
       )}
 
-      <div>
-        <label htmlFor="categoryId" className="block font-medium">
-          Category (Required)
-        </label>
-        <select
-          id="categoryId"
-          name="categoryId"
-          required
-          className="w-full rounded border p-2"
-          defaultValue={existingData?.category?.id ?? ""}
-        >
-          <option value="">Select a category</option>
-          {filteredCategories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+      <div className="flex space-x-8">
+        <div className="w-2/5">
+          <label htmlFor="categoryId" className="block font-medium">
+            Category (Required)
+          </label>
+          <select
+            id="categoryId"
+            name="categoryId"
+            required
+            className="w-full rounded border p-2 bg-white"
+            defaultValue={existingData?.category?.id ?? ""}
+          >
+            <option value="">Select a category</option>
+            {filteredCategories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="w-2/5">
+          <label htmlFor="roomLocationId" className="block font-medium">
+            Room Location (Required)
+          </label>
+          <select
+            id="roomLocationId"
+            name="roomLocationId"
+            required
+            className="w-full rounded border p-2 bg-white"
+            defaultValue={existingData?.roomLocation?.id ?? ""}
+          >
+            <option value="">Select a room</option>
+            {roomLocations.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div>
-        <label htmlFor="roomLocationId" className="block font-medium">
-          Room Location (Required)
-        </label>
-        <select
-          id="roomLocationId"
-          name="roomLocationId"
-          required
-          className="w-full rounded border p-2"
-          defaultValue={existingData?.roomLocation?.id ?? ""}
-        >
-          <option value="">Select a room</option>
-          {roomLocations.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Link
+        href="/items"
 
-      {/* Image upload placeholder for when i'm ready */}
-      <div>
-        <label htmlFor="image" className="block font-medium">
-          Valuation Image
-        </label>
-        <input
-          id="image"
-          name="image"
-          type="file"
-          accept="image/*"
-          className="w-full rounded border p-2"
-        />
-        <p className="mt-1 text-sm text-gray-500">Image upload coming soon.</p>
-      </div>
-
+        className="rounded bg-[#696eb5] px-4 py-2 text-white font-bold disabled:opacity-50 mr-6"
+      >
+        CANCEL
+      </Link>
       <button
         type="submit"
         disabled={pending}
-        className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+        className="rounded bg-primary px-4 py-2 text-white font-bold disabled:opacity-50"
       >
-        {pending ? "Saving..." : "Save Item"}
+        {pending ? "Saving..." : "SAVE ITEM"}
       </button>
     </form>
   );

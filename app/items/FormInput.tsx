@@ -26,7 +26,7 @@ export default function FormInput({
         name={id}
         step={step}
         required={required}
-        className="w-full rounded border p-2"
+        className="w-full rounded border p-2 bg-white"
         defaultValue={defaultValue ?? undefined}
       />
       {fieldError && <p className="text-sm text-red-600">{fieldError[0]}</p>}

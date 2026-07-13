@@ -12,7 +12,7 @@ export default async function AccountPage({ params }: { params: Promise<{ path: 
 
   return (
     <main className="container p-4 md:p-6">
-      <AccountView path={path}/>
+      <AccountView path={path} />
     </main>
   );
 }

@@ -69,9 +69,9 @@ export default async function EditItemPage({ params }: { params: Promise<{ id: s
   }
 
   return (
-    <div className="mx-auto max-w-lg">
-      <h1 className="mb-4 text-2xl font-bold">Edit {currentItem.name}</h1>
+    <main className="container mx-auto flex flex-col items-center justify-center self-center my-10">
+      <h1 className="mb-4 text-2xl">Edit {currentItem.name}</h1>
       <ItemForm action={action} existingData={plainItem} />
-    </div>
+    </main>
   );
 }

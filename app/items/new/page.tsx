@@ -55,9 +55,9 @@ export default function AddItemPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg">
+    <main className="container mx-auto flex flex-col items-center justify-center self-center my-10">
       <h1 className="mb-4 text-2xl font-bold">Add New Item</h1>
       <ItemForm action={action} />
-    </div>
+    </main>
   );
 }
