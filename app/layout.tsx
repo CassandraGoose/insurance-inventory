@@ -40,7 +40,7 @@ export default function RootLayout({
           emailOTP
           credentials={{ forgotPassword: false }}
           social={{ providers: ["google"] }}
-          className="bg-[#f5f5f5] text-[#292f36]"
+          className="bg-[#f5f5f5] text-[#292f36] flex flex-col flex-1"
         >
           <header className="flex h-16 items-center justify-between border-b p-4">
             <nav>
@@ -62,7 +62,14 @@ export default function RootLayout({
               }}
             />
           </header>
-          {children}
+          <div className="flex-1">{children}</div>
+          <footer className="text-[#696eb5] bg-[#e3dfde] py-6 px-10 text-small">
+            <p className="py-4">Insurance Inventory 2026</p>
+            <p>
+              Logo Attribution: &quot;home insurance by Iwan Setyo from Noun Project&quot; (CC BY
+              3.0)
+            </p>
+          </footer>
         </NeonAuthUIProvider>
       </body>
     </html>
