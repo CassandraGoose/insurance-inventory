@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   title: "Insurance Inventory",
   description: "This app let's you track insurance for claims and adjustments.",
   icons: { icon: "/logo.svg" },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
