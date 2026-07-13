@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth/server";
 import { db } from "./drizzle";
-import { category, room_location, item } from "./schema";
+import { category, room_location, item, coverage_type } from "./schema";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import {
@@ -14,16 +14,30 @@ import {
 import { Category } from "@/lib/models/category";
 import { RoomLocation } from "@/lib/models/room-location";
 
-function getStandardCategories(categories: (typeof category.$inferSelect)[]) {
+function getStandardCategories(
+  categories: (typeof category.$inferSelect)[],
+  standardTypeId: string,
+) {
   return categories
-    .filter((category) => category.coverage_type === "standard")
+    .filter((category) => category.coverage_type_id === standardTypeId)
     .map((category) => category.name);
 }
 
-function getSpecialtyCategories(categories: (typeof category.$inferSelect)[]) {
+function getSpecialtyCategories(
+  categories: (typeof category.$inferSelect)[],
+  specialtyTypeId: string,
+) {
   return categories
-    .filter((category) => category.coverage_type === "specialty")
+    .filter((category) => category.coverage_type_id === specialtyTypeId)
     .map((category) => category.name);
+}
+
+async function getCoverageTypeMapping(): Promise<{ standard: string; specialty: string }> {
+  const types = await db.select().from(coverage_type);
+  return {
+    standard: types.find((coverageType) => coverageType.name === "standard")!.id,
+    specialty: types.find((coverageType) => coverageType.name === "specialty")!.id,
+  };
 }
 
 async function getAuthUser() {
@@ -47,10 +61,12 @@ export async function getUserInventoryItems(): Promise<InventoryItem[]> {
     .where(eq(item.user_id, user.id));
 
   const allCategories = await getAllCategories();
-  const standardCategories = getStandardCategories(allCategories);
-  const specialtyCategories = getSpecialtyCategories(allCategories);
+  const { standard: standardTypeId, specialty: specialtyTypeId } = await getCoverageTypeMapping();
+  const standardCategories = getStandardCategories(allCategories, standardTypeId);
+  const specialtyCategories = getSpecialtyCategories(allCategories, specialtyTypeId);
 
   return rows.map((row) => {
+    const coverageType = row.item.coverage_type_id === standardTypeId ? "standard" : "specialty";
     const record: InventoryItemRecord = {
       id: row.item.id,
       name: row.item.name,
@@ -61,11 +77,10 @@ export async function getUserInventoryItems(): Promise<InventoryItem[]> {
       purchasePrice: Number(row.item.purchase_price),
       purchaseDate: row.item.purchase_date ? new Date(row.item.purchase_date) : null,
       currentValue: row.item.current_value ? Number(row.item.current_value) : null,
-      coverageType: row.item.coverage_type,
-      category: new Category(row.category.id, row.category.name, row.category.coverage_type),
+      coverageType,
+      category: new Category(row.category.id, row.category.name, row.category.coverage_type_id),
       roomLocation: new RoomLocation(row.room_location.id, row.room_location.name),
-      allowedCategories:
-        row.category.coverage_type === "standard" ? standardCategories : specialtyCategories,
+      allowedCategories: coverageType === "standard" ? standardCategories : specialtyCategories,
     };
     return record.coverageType === "specialty"
       ? new SpecialtyItem(record)
@@ -87,12 +102,14 @@ export async function createInventoryItem(data: {
   roomLocationId: string;
 }): Promise<void> {
   const user = await getAuthUser();
+  const { standard: standardTypeId, specialty: specialtyTypeId } = await getCoverageTypeMapping();
+  const coverageTypeId = data.coverageType === "standard" ? standardTypeId : specialtyTypeId;
 
   await db.insert(item).values({
     id: crypto.randomUUID(),
     user_id: user.id,
     room_location: data.roomLocationId,
-    coverage_type: data.coverageType,
+    coverage_type_id: coverageTypeId,
     name: data.name,
     category_id: data.categoryId,
     description: data.description ?? null,
@@ -122,6 +139,12 @@ export async function updateInventoryItem(
   },
 ): Promise<void> {
   const user = await getAuthUser();
+  const { standard: standardTypeId, specialty: specialtyTypeId } = await getCoverageTypeMapping();
+  const coverageTypeId = data.coverageType
+    ? data.coverageType === "standard"
+      ? standardTypeId
+      : specialtyTypeId
+    : undefined;
 
   await db
     .update(item)
@@ -134,7 +157,7 @@ export async function updateInventoryItem(
       purchase_price: data.purchasePrice.toString(),
       purchase_date: data.purchaseDate,
       current_value: data.currentValue?.toString(),
-      coverage_type: data.coverageType,
+      coverage_type_id: coverageTypeId,
       category_id: data.categoryId,
       room_location: data.roomLocationId,
       updated_at: new Date().toISOString().split("T")[0],
@@ -154,12 +177,13 @@ export async function getItem(id: string): Promise<InventoryItemRecord> {
 
   console.log(row);
   const allCategories = await getAllCategories();
-
-  const standardCategories = getStandardCategories(allCategories);
-  const specialtyCategories = getSpecialtyCategories(allCategories);
+  const { standard: standardTypeId, specialty: specialtyTypeId } = await getCoverageTypeMapping();
+  const standardCategories = getStandardCategories(allCategories, standardTypeId);
+  const specialtyCategories = getSpecialtyCategories(allCategories, specialtyTypeId);
 
   if (!row.item.id) throw new Error("No item found!");
 
+  const coverageType = row.item.coverage_type_id === standardTypeId ? "standard" : "specialty";
   const record: InventoryItemRecord = {
     id: row.item.id,
     name: row.item.name,
@@ -170,11 +194,10 @@ export async function getItem(id: string): Promise<InventoryItemRecord> {
     purchasePrice: Number(row.item.purchase_price),
     purchaseDate: row.item.purchase_date ? new Date(row.item.purchase_date) : null,
     currentValue: row.item.current_value ? Number(row.item.current_value) : null,
-    coverageType: row.item.coverage_type,
-    category: new Category(row.category.id, row.category.name, row.category.coverage_type),
+    coverageType,
+    category: new Category(row.category.id, row.category.name, row.category.coverage_type_id),
     roomLocation: new RoomLocation(row.room_location.id, row.room_location.name),
-    allowedCategories:
-      row.item.coverage_type === "standard" ? standardCategories : specialtyCategories,
+    allowedCategories: coverageType === "standard" ? standardCategories : specialtyCategories,
   };
   return record;
 }
@@ -192,4 +215,8 @@ export async function getCategories() {
 
 export async function getRoomLocations() {
   return db.select().from(room_location);
+}
+
+export async function getCoverageTypes() {
+  return db.select().from(coverage_type);
 }

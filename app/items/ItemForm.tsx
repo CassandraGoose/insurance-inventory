@@ -1,8 +1,9 @@
 "use client";
 import { useActionState } from "react";
 import { useEffect, useState } from "react";
-import { getCategories, getRoomLocations } from "@/db/actions";
+import { getCategories, getRoomLocations, getCoverageTypes } from "@/db/actions";
 import { InventoryItemRecord } from "@/lib/models/inventory-item";
+import { CoverageType } from "@/lib/models/coverage-type";
 import { FormState } from "@/lib/validations/inventory-item";
 import FormInput from "./FormInput";
 
@@ -19,18 +20,31 @@ export default function ItemForm({
     existingData?.coverageType ?? "standard",
   );
   const [categories, setCategories] = useState<
-    { id: string; name: string; coverage_type: string }[]
+    { id: string; name: string; coverage_type_id: string }[]
   >([]);
   const [roomLocations, setRoomLocations] = useState<{ id: string; name: string }[]>([]);
+  const [coverageTypeIdMap, setCoverageTypeIdMap] = useState<Record<string, string>>({});
   const filteredCategories = categories.filter(
-    (category) => category.coverage_type === coverageType,
+    (category) => category.coverage_type_id === coverageTypeIdMap[coverageType],
   );
 
   useEffect(() => {
     async function loadData() {
-      const [categories, rooms] = await Promise.all([getCategories(), getRoomLocations()]);
+      const [categories, rooms, coverageTypes] = await Promise.all([
+        getCategories(),
+        getRoomLocations(),
+        getCoverageTypes(),
+      ]);
       setCategories(categories);
       setRoomLocations(rooms);
+      const coverageTypeObjects = coverageTypes.map(
+        (coverageType) => new CoverageType(coverageType.id, coverageType.name),
+      );
+      setCoverageTypeIdMap({
+        standard: coverageTypeObjects.find((coverageType) => coverageType.name === "standard")!.id,
+        specialty: coverageTypeObjects.find((coverageType) => coverageType.name === "specialty")!
+          .id,
+      });
       setLoading(false);
     }
     loadData();

@@ -6,7 +6,6 @@ import {
   uuid,
   text,
   date,
-  pgEnum,
   numeric,
   varchar,
   timestamp,
@@ -19,12 +18,17 @@ import { sql } from "drizzle-orm";
 
 export const neonAuth = pgSchema("neon_auth");
 
-export const coverageTypeEnum = pgEnum("coverage_type", ["standard", "specialty"]);
+export const coverage_type = pgTable("coverage_type", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+});
 
 export const category = pgTable("category", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  coverage_type: coverageTypeEnum("coverage_type").notNull(),
+  coverage_type_id: uuid("coverage_type_id")
+    .references(() => coverage_type.id)
+    .notNull(),
 });
 
 export const room_location = pgTable("room_location", {
@@ -40,7 +44,9 @@ export const item = pgTable("item", {
       onDelete: "cascade",
     })
     .notNull(),
-  coverage_type: coverageTypeEnum("coverage_type").default("standard").notNull(),
+  coverage_type_id: uuid("coverage_type_id")
+    .references(() => coverage_type.id)
+    .notNull(),
   category_id: uuid("category_id")
     .references(() => category.id, { onDelete: "cascade" })
     .notNull(),

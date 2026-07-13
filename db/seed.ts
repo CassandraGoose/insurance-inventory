@@ -1,24 +1,9 @@
 import { db } from "./drizzle";
-import { category, room_location } from "./schema";
+import { category, room_location, coverage_type } from "./schema";
 
-const categories: { name: string; coverage_type: "standard" | "specialty" }[] = [
-  { name: "Furniture", coverage_type: "standard" },
-  { name: "Appliances", coverage_type: "standard" },
-  { name: "Electronics", coverage_type: "standard" },
-  { name: "Clothing", coverage_type: "standard" },
-  { name: "Books", coverage_type: "standard" },
-  { name: "Music Media", coverage_type: "standard" },
-  { name: "Electronic Media", coverage_type: "standard" },
-  { name: "Furniture (Designer)", coverage_type: "specialty" },
-  { name: "Clothing (Designer)", coverage_type: "specialty" },
-  { name: "Musical Instruments", coverage_type: "specialty" },
-  { name: "Collectible Cards", coverage_type: "specialty" },
-  { name: "Jewelry (Designer)", coverage_type: "specialty" },
-  { name: "Fine Art", coverage_type: "specialty" },
-  { name: "Books (Collectible)", coverage_type: "specialty" },
-  { name: "Vintage Miscellaneous", coverage_type: "specialty" },
-  { name: "Collectible Miscellaneous", coverage_type: "specialty" },
-];
+const coverageTypes = [{ name: "standard" }, { name: "specialty" }];
+
+const categories: { name: string; coverage_type_id: string }[] = [];
 
 const room_locations = [
   { name: "Living" },
@@ -40,7 +25,31 @@ const room_locations = [
 ];
 
 async function seedData() {
-  await db.insert(category).values(categories);
+  const insertedCoverageTypes = await db.insert(coverage_type).values(coverageTypes).returning();
+
+  const standardId = insertedCoverageTypes.find((t) => t.name === "standard")!.id;
+  const specialtyId = insertedCoverageTypes.find((t) => t.name === "specialty")!.id;
+
+  const categoryData = [
+    { name: "Furniture", coverage_type_id: standardId },
+    { name: "Appliances", coverage_type_id: standardId },
+    { name: "Electronics", coverage_type_id: standardId },
+    { name: "Clothing", coverage_type_id: standardId },
+    { name: "Books", coverage_type_id: standardId },
+    { name: "Music Media", coverage_type_id: standardId },
+    { name: "Electronic Media", coverage_type_id: standardId },
+    { name: "Furniture (Designer)", coverage_type_id: specialtyId },
+    { name: "Clothing (Designer)", coverage_type_id: specialtyId },
+    { name: "Musical Instruments", coverage_type_id: specialtyId },
+    { name: "Collectible Cards", coverage_type_id: specialtyId },
+    { name: "Jewelry (Designer)", coverage_type_id: specialtyId },
+    { name: "Fine Art", coverage_type_id: specialtyId },
+    { name: "Books (Collectible)", coverage_type_id: specialtyId },
+    { name: "Vintage Miscellaneous", coverage_type_id: specialtyId },
+    { name: "Collectible Miscellaneous", coverage_type_id: specialtyId },
+  ];
+
+  await db.insert(category).values(categoryData);
   await db.insert(room_location).values(room_locations);
 }
 
