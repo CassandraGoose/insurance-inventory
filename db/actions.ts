@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth/server";
 import { db } from "./drizzle";
 import { category, room_location, item, coverage_type } from "./schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, ilike, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import {
   InventoryItem,
@@ -50,15 +50,40 @@ async function getAllCategories() {
   return await db.select().from(category);
 }
 
-export async function getUserInventoryItems(): Promise<InventoryItem[]> {
+export async function getUserInventoryItems(searchTerm?: string): Promise<InventoryItem[]> {
   const user = await getAuthUser();
+
+  const conditions = [eq(item.user_id, user.id)];
+
+  if (searchTerm) {
+    const possibleSearchConditions = [
+      ilike(item.name, `%${searchTerm}%`),
+      ilike(item.description, `%${searchTerm}%`),
+      ilike(item.brand, `%${searchTerm}%`),
+      ilike(item.model, `%${searchTerm}%`),
+      ilike(item.identification_number, `%${searchTerm}%`),
+      ilike(category.name, `%${searchTerm}%`),
+      ilike(room_location.name, `%${searchTerm}%`),
+      ilike(coverage_type.name, `%${searchTerm}%`),
+    ].filter(
+      (condition): condition is NonNullable<typeof condition> =>
+        condition != null && condition != undefined,
+    );
+
+    const ors = or(...possibleSearchConditions);
+
+    if (ors) {
+      conditions.push(ors);
+    }
+  }
 
   const rows = await db
     .select()
     .from(item)
     .innerJoin(category, eq(item.category_id, category.id))
     .innerJoin(room_location, eq(item.room_location, room_location.id))
-    .where(eq(item.user_id, user.id));
+    .innerJoin(coverage_type, eq(item.coverage_type_id, coverage_type.id))
+    .where(and(...conditions));
 
   const allCategories = await getAllCategories();
   const { standard: standardTypeId, specialty: specialtyTypeId } = await getCoverageTypeMapping();

@@ -6,12 +6,17 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-export default async function InventoryItemsPage() {
+export default async function InventoryItemsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ search?: string }>;
+}) {
   const { data: session } = await auth.getSession();
 
   if (!session?.user) redirect("/auth/sign-in");
 
-  const items = await getUserInventoryItems();
+  const { search } = await searchParams;
+  const items = await getUserInventoryItems(search);
 
   return (
     <div>
@@ -23,17 +28,17 @@ export default async function InventoryItemsPage() {
         </Link>
         <div className="flex justify-center items-center gap-4">
           <button>sort by?</button>
-          <div>
+          <form method="GET" className="flex items-center gap-2">
             <label htmlFor="search">Search</label>
-            <input id="search" name="search" />
-          </div>
-          <button>search</button>
+            <input id="search" name="search" defaultValue={search ?? ""}/>
+            <button type="submit">search</button>
+          </form>
         </div>
       </div>
 
       <h2>Your Insurance Inventory Items:</h2>
       {items.length === 0 ? (
-        <p>No Items Added.</p>
+        <p>No Inventory Items could be found. Add new items or change the search term.</p>
       ) : (
         <table className="w-full border-collapse">
           <thead>
