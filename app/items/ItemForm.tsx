@@ -7,6 +7,7 @@ import { CoverageType } from "@/lib/models/coverage-type";
 import { FormState } from "@/lib/validations/inventory-item";
 import FormInput from "./FormInput";
 import Link from "next/link";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function ItemForm({
   action,
@@ -51,15 +52,10 @@ export default function ItemForm({
     loadData();
   }, []);
 
-  if (loading)
-    return (
-      <div>
-        <p>Laoding...todo add spinner</p>
-      </div>
-    );
+  if (loading) return <LoadingSpinner />;
   // todo i need to add validation (when i am at that point in the rubric) and i need to also make it clear to the user how to use the form via required strings and red and disabling the submit button until read and a cancel.
   return (
-    <form action={formAction} className="w-1/2 space-y-4 rounded-xl bg-[#e3dfde] p-6 shadow-sm ">
+    <form action={formAction} className="md:w-1/2 space-y-4 rounded-xl bg-[#e3dfde] p-6 shadow-sm ">
       <FormInput
         id={"name"}
         label={"Name"}
@@ -191,14 +187,14 @@ export default function ItemForm({
       <Link
         href="/items"
 
-        className="rounded bg-[#696eb5] px-4 py-2 text-white font-bold disabled:opacity-50 mr-6"
+        className="rounded bg-[#696eb5] px-4 py-2 text-white font-bold disabled:opacity-50 mr-6 hover:bg-[#8a8ba6]"
       >
         CANCEL
       </Link>
       <button
         type="submit"
         disabled={pending}
-        className="rounded bg-primary px-4 py-2 text-white font-bold disabled:opacity-50"
+        className="rounded bg-primary px-4 py-2 text-white font-bold disabled:opacity-50 hover:bg-[#b59e59]"
       >
         {pending ? "Saving..." : "SAVE ITEM"}
       </button>

@@ -1,11 +1,9 @@
-// app/items/[id]/edit/loading.tsx
+import LoadingSpinner from "../../LoadingSpinner";
+
 export default function Loading() {
-  // todo does this only work automagically for server components? research.
-  // if not, chagne all other loading to do the same steyl
-  // todo add spinner.
   return (
-    <div className="mx-auto max-w-lg">
-      <p>Loading...</p>
+    <div className="mx-auto max-w-lg h-screen w-screen">
+      <LoadingSpinner />
     </div>
   );
 }

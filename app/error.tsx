@@ -11,7 +11,7 @@ export default function Error({
       <h2 className="text-xl font-bold mb-2">Oops! Something went wrong!</h2>
       <button
         onClick={() => reset()}
-        className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        className="rounded bg-primary px-4 py-2 text-white hover:bg-[#b59e59]"
       >
         Try again
       </button>

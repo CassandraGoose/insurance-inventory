@@ -3,8 +3,6 @@ import { category, room_location, coverage_type } from "./schema";
 
 const coverageTypes = [{ name: "standard" }, { name: "specialty" }];
 
-const categories: { name: string; coverage_type_id: string }[] = [];
-
 const room_locations = [
   { name: "Living" },
   { name: "Family" },

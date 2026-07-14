@@ -14,7 +14,7 @@ export default function SignInPage() {
   return (
     <main className="container mx-auto w-full flex flex-col items-center justify-center self-center my-10">
       <h2 className="py-4">Welcome! Please Sign In to Continue.</h2>
-      <div className="w-100 max-w-md rounded-xl bg-[#e3dfde] p-6 shadow-sm ">
+      <div className="max-w-md rounded-xl bg-[#e3dfde] p-6 shadow-sm ">
         <SignInForm
           localization={{ SIGN_IN: "Welcome Back!" }}
           redirectTo="/items"
