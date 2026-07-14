@@ -49,7 +49,6 @@ export default function AddItemPage() {
       router.push("/items");
       return null;
     } catch (error) {
-      //todo wanna route to an error page?
       return { error: (error as Error).message };
     }
   }

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getUserInventoryItems, deleteInventoryItem } from "@/db/actions";
 import { SpecialtyItem } from "@/lib/models/inventory-item";
 import Link from "next/link";
+import ReportDownloadButton from "./ReportDownloadButton";
 
 export const dynamic = "force-dynamic";
 
@@ -18,17 +19,33 @@ export default async function InventoryItemsPage({
   const { search } = await searchParams;
   const items = await getUserInventoryItems(search);
 
+  const reportData = items.map((item) => ({
+    name: item.name,
+    purchaseDate: item.purchaseDate ?? null,
+    category: item.category.name,
+    description: item.description,
+    brand: item.brand,
+    model: item.model,
+    purchasePrice: item.purchasePrice,
+    currentValue: item instanceof SpecialtyItem ? item.currentValue : null,
+    room: item.roomLocation?.name ?? "",
+    coverageType: item.coverageType,
+  }));
+
   return (
     <main className="container mx-auto md:w-full w-7/8 flex flex-col justify-center py-10 gap-6">
       <h2 className="text-xl md">Your Insurance Inventory Items:</h2>
 
       <div className="flex md:flex-row flex-col justify-between md:items-center items-baseline bg-[#e3dfde] p-4 rounded md:gap-0 gap-4">
-        <Link
-          href="/items/new"
-          className="rounded py-2 bg-[#696eb5] p-2 text-white hover:bg-[#8a8ba6]"
-        >
-          + ADD NEW ITEM
-        </Link>
+        <div className="flex md:flex-row flex-col justify-center md:items-center items-baseline gap-6">
+          <Link
+            href="/items/new"
+            className="rounded py-2 bg-[#696eb5] p-2 text-white hover:bg-[#8a8ba6]"
+          >
+            + ADD NEW ITEM
+          </Link>
+          <ReportDownloadButton data={reportData} />
+        </div>
         <div className="flex justify-center items-center gap-4">
           <form method="GET" className="flex items-center gap-2">
             <label htmlFor="search" className="sr-only">
@@ -43,7 +60,7 @@ export default async function InventoryItemsPage({
             />
             <button
               type="submit"
-              className="rounded py-2 bg-[#696eb5] p-2 text-white hover:bg-[#8a8ba6]"
+              className="rounded py-2 bg-[#696eb5] p-2 text-white hover:bg-[#8a8ba6] cursor-pointer"
             >
               SEARCH
             </button>
@@ -59,8 +76,10 @@ export default async function InventoryItemsPage({
             <thead>
               <tr className="border-b text-left text-sm text-gray-600">
                 <th className="p-2">Name</th>
+                <th className="description">Description</th>
                 <th className="p-2">Category</th>
                 <th className="p-2">Brand / Model</th>
+                <th className="p-2">Purchase Date</th>
                 <th className="p-2">Purchase Price</th>
                 <th className="p-2">Current Value</th>
                 <th className="p-2">Room</th>
@@ -71,11 +90,14 @@ export default async function InventoryItemsPage({
             <tbody>
               {items.map((item) => (
                 <tr key={item.id} className="border-b hover:bg-gray-50">
-                  <td className="p-2 font-medium">{item.name}</td>
+                  <td className="p-2 font-medium truncate max-w-35">{item.name}</td>
+                  <td className="p-2 truncate max-w-25">{item.description}</td>
                   <td className="p-2">{item.category.name}</td>
                   <td className="p-2 text-sm">
                     {[item.brand, item.model].filter(Boolean).join(" / ") || "—"}
                   </td>
+                  <td className="p-2">{item.purchaseDate?.toISOString().split("T")[0] ?? "—"}</td>
+
                   <td className="p-2">${Number(item.purchasePrice).toFixed(2)}</td>
                   <td className="p-2">
                     {item instanceof SpecialtyItem && item.currentValue != null
@@ -106,7 +128,7 @@ export default async function InventoryItemsPage({
                         <input type="hidden" name="id" value={item.id} />
                         <button
                           type="submit"
-                          className="rounded bg-primary px-3 font-bold py-1 text-sm text-white hover:bg-[#b59e59]"
+                          className="rounded bg-primary px-3 font-bold py-1 text-sm text-white hover:bg-[#b59e59] cursor-pointer"
                         >
                           DELETE
                         </button>

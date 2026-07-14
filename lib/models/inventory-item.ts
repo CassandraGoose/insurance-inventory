@@ -5,7 +5,6 @@
 import { Category } from "./category";
 import { RoomLocation } from "./room-location";
 
-// todo do we like the naming conventions ive used?
 export interface InventoryItemRecord {
   id: string;
   name: string;
@@ -16,7 +15,6 @@ export interface InventoryItemRecord {
   purchasePrice: number;
   purchaseDate: Date | null;
   currentValue?: number | null;
-  //todo make enums?
   coverageType: "standard" | "specialty";
   roomLocation: RoomLocation;
   category: Category;
@@ -32,7 +30,6 @@ export abstract class InventoryItem {
   private _identificationNumber: string | null;
   private _purchasePrice: number;
   private _purchaseDate: Date | null;
-  //todo make enums?
   private _coverageType: "standard" | "specialty";
   private _roomLocation: RoomLocation;
   private _category: Category;
@@ -45,7 +42,6 @@ export abstract class InventoryItem {
     this._brand = data.brand;
     this._model = data.model;
     this._identificationNumber = data.identificationNumber;
-    // todo can we format that here Or later? price
     this._purchasePrice = Number(data.purchasePrice);
     this._purchaseDate = data.purchaseDate && new Date(data.purchaseDate);
 
@@ -106,7 +102,6 @@ export class SpecialtyItem extends InventoryItem {
 
   constructor(data: InventoryItemRecord) {
     super(data);
-    // todo can we format that here Or later? price
     this._currentValue = data.currentValue != null ? Number(data.currentValue) : null;
   }
 
@@ -115,6 +110,6 @@ export class SpecialtyItem extends InventoryItem {
   }
 
   getCoverageTypeExplanation(): string {
-    return "In order for coverage and claims to be accurately calculated, you must upload proof of the current value of the item. You can do this anytime before making a claim. Valid proof includes images such as: Professional Appraisal Document, Certificate of Authenticity, Reputable Dealer Recently Sold Documents, such as a TCG Player Market Price History Graph Screenshot or a series of recently sold Ebay listings with prices. However, please note that there is no guarantee that the insurance company will honor the provided prices. All claims are dependent on investigations, adjustments, and insurance terms and discretion.";
+    return "In order for coverage and claims to be accurately calculated, you must be able to provide proof of the current value of the item, dated before the time of coverage. You can do this anytime before making a claim. Valid proof includes images such as: Professional Appraisal Document, Certificate of Authenticity, Reputable Dealer Recently Sold Documents, such as a TCG Player Market Price History Graph Screenshot or a series of recently sold Ebay listings with prices. However, please note that there is no guarantee that the insurance company will honor the provided prices. All claims are dependent on investigations, adjustments, and insurance terms and discretion.";
   }
 }

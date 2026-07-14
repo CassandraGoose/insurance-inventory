@@ -53,7 +53,7 @@ export default function ItemForm({
   }, []);
 
   if (loading) return <LoadingSpinner />;
-  // todo i need to add validation (when i am at that point in the rubric) and i need to also make it clear to the user how to use the form via required strings and red and disabling the submit button until read and a cancel.
+
   return (
     <form action={formAction} className="md:w-1/2 space-y-4 rounded-xl bg-[#e3dfde] p-6 shadow-sm ">
       <FormInput
@@ -194,7 +194,7 @@ export default function ItemForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded bg-primary px-4 py-2 text-white font-bold disabled:opacity-50 hover:bg-[#b59e59]"
+        className="rounded cursor-pointer bg-primary px-4 py-2 text-white font-bold disabled:opacity-50 hover:bg-[#b59e59]"
       >
         {pending ? "Saving..." : "SAVE ITEM"}
       </button>

@@ -200,7 +200,6 @@ export async function getItem(id: string): Promise<InventoryItemRecord> {
     .innerJoin(room_location, eq(item.room_location, room_location.id))
     .where(and(eq(item.user_id, user.id), eq(item.id, id)));
 
-  console.log(row);
   const allCategories = await getAllCategories();
   const { standard: standardTypeId, specialty: specialtyTypeId } = await getCoverageTypeMapping();
   const standardCategories = getStandardCategories(allCategories, standardTypeId);
