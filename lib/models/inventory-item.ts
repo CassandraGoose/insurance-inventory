@@ -88,6 +88,10 @@ export abstract class InventoryItem {
     return this._allowedCategories;
   }
 
+  setBrand(value: string | null) {
+    this._brand = value?.trim() ?? null;
+  }
+
   abstract getCoverageTypeExplanation(): string;
 }
 
