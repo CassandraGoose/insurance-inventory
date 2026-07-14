@@ -8,6 +8,9 @@ import { FormState } from "@/lib/validations/inventory-item";
 import FormInput from "./FormInput";
 import Link from "next/link";
 import LoadingSpinner from "./LoadingSpinner";
+import { StandardItem, SpecialtyItem } from "@/lib/models/inventory-item";
+import { Category } from "@/lib/models/category";
+import { RoomLocation } from "@/lib/models/room-location";
 
 export default function ItemForm({
   action,
@@ -16,6 +19,7 @@ export default function ItemForm({
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   existingData?: InventoryItemRecord | null;
 }) {
+  const [coverageExplanationUnderstood, setCoverageExplanationUnderstood] = useState(false);
   const [loading, setLoading] = useState(true);
   const [state, formAction, pending] = useActionState(action, null);
   const [coverageType, setCoverageType] = useState<"standard" | "specialty">(
@@ -51,6 +55,35 @@ export default function ItemForm({
     }
     loadData();
   }, []);
+
+  function getCoverageRequirementsExplanation(type: "standard" | "specialty"): string {
+    const dummyCategory = new Category("", "", "");
+    const dummyRoom = new RoomLocation("", "");
+    const base = {
+      id: "",
+      name: "",
+      description: null,
+      brand: null,
+      model: null,
+      identificationNumber: null,
+      purchasePrice: 0,
+      purchaseDate: null,
+      roomLocation: dummyRoom,
+      category: dummyCategory,
+      allowedCategories: [],
+    };
+    if (type === "standard")
+      return new StandardItem({
+        ...base,
+        coverageType: "standard",
+        currentValue: null,
+      }).getCoverageTypeExplanation();
+    return new SpecialtyItem({
+      ...base,
+      coverageType: "specialty",
+      currentValue: null,
+    }).getCoverageTypeExplanation();
+  }
 
   if (loading) return <LoadingSpinner />;
 
@@ -123,7 +156,10 @@ export default function ItemForm({
           id="coverageType"
           name="coverageType"
           value={coverageType}
-          onChange={(e) => setCoverageType(e.target.value as "standard" | "specialty")}
+          onChange={(e) => {
+            setCoverageType(e.target.value as "standard" | "specialty");
+            setCoverageExplanationUnderstood(false);
+          }}
           className="w-full rounded border p-2 bg-white"
         >
           <option value="standard">Standard</option>
@@ -183,6 +219,19 @@ export default function ItemForm({
           </select>
         </div>
       </div>
+      <div className="rounded border bg-white p-4">
+        <p className="mb-2 text-sm">By checking this box, I understand the following:</p>
+        <p className="mb-3 text-sm italic">{getCoverageRequirementsExplanation(coverageType)}</p>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="accent-[#696eb5]"
+            checked={coverageExplanationUnderstood}
+            onChange={(e) => setCoverageExplanationUnderstood(e.target.checked)}
+          />
+          I understand
+        </label>
+      </div>
 
       <Link
         href="/items"
@@ -193,7 +242,7 @@ export default function ItemForm({
       </Link>
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || !coverageExplanationUnderstood}
         className="rounded cursor-pointer bg-primary px-4 py-2 text-white font-bold disabled:opacity-50 hover:bg-[#b59e59]"
       >
         {pending ? "Saving..." : "SAVE ITEM"}
