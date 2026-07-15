@@ -47,7 +47,7 @@ export default function RootLayout({
             <nav>
               <Link href="/items" className="flex justify-between items-center space-x-2">
                 <img src="/logo.svg" alt="Logo" className="h-12 w-auto" />
-                <h1 className="text-3xl font-bold">Inventory Items</h1>
+                <h1 className="text-3xl font-bold">Insurance Inventory</h1>
               </Link>
             </nav>
             <UserButton
