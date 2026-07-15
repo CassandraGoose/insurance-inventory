@@ -1,65 +1,64 @@
+# Insurance Inventory
+
+---
+
+## Installation:
+
+- You will need the most recent Long Term Support Node.js version on your machine. Please install according to your machine and the instructions here: https://nodejs.org/en/download/current or via HomeBrew.
 
 
+- Note that application development is on the ‘working’ branch. 
 
+- Clone the repository to your local machine. 
 
-BASIC INSTRUCTIONS
+- Navigate into the directory. 
 
-## SUPPLEMENTAL RESOURCES
+- Navigate to the ‘working’ branch using Git.
 
-1. How to clone a project to IntelliJ using Git?
+- Install the dependencies via `npm install`.
 
+  - There will be warnings regarding deprecated packages. This is okay and a noted issue with the required Next.js/NeonAuth/React packages.
 
-2. How to create a branch and start Development?
+- Create a Neon account online at neon.com. This application utilizes Neon Auth, which is integrated into the database automatically. The application authorization and authentication will not work without Neon Auth
 
+  - Create a Neon project once in the dashboard. 
 
-> Press the '+' button located near your branch name. In the dropdown list, press the 'New branch' button. This will allow you to create a name for your branch. Once the branch has been named, you can select 'Create Branch' to push the branch to your repository.
+  - Enable Neon Auth in the project.
 
-- IntelliJ method
+  - Copy the DATABASE_URL connection string and the NEON_AUTH_BASE_URL.
 
-> In IntelliJ, Go to the 'Git' button on the top toolbar. Select the new branch option and create a name for the branch. Make sure checkout branch is selected and press create. You can now add a commit message and push the new branch to the local repo.
+  - Create a ‘.env’ file and paste the values. Your ‘.env’ should look like: 
+      DATABASE_URL=connection-string-here
+      NEON_AUTH_BASE_URL=base-url-here
 
-## SUPPORT
+  - The ‘.env’ file provides your application with the required secrets it needs. This file is not tracked in Git, due to being listed in the ‘.gitignore’ file. These secrets act as the connections to the database.
 
+  - Add an additional item to the ‘.env’ called NEON_AUTH_COOKIE_SECRET. Generate a secret using OpenSSL. For example, one command that will generate a random string is `openssl rand -hex 32`. Save that random string to your ‘.env’ NEON_AUTH_COOKIE_SECRET.
 
-## FUTURE USE
+  - Currently, the database has no tables and no data. To build out the schema, run the command `npx drizzle-kit push`. This will apply the local schema from the application code to the Neon Database. Then, seed the data via the command `node db/seed.ts`. 
 
-Take this opportunity to create or add to a simple resume portfolio to highlight and showcase your work for future use in career search, experience, and education!
+- You are now ready to run the application. Run the command `npm run dev`
 
-## NEXT JS Project GENERATION README BELOW:
+- Visit the Local link provided, usually `http://localhost:3000`.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Testing: 
 
-## Getting Started
+- You will need the latest LTS of Node.js and Vitest.
 
-First, run the development server:
+### Unit Testing:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Install Vitest
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- If a test file doesn't exist in your current director, make one called '__tests__'
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Identify items to test within the system. 
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Create a file within the __tests__ folder named after the file you are testing, such as implementationfilename.test.js
 
-## Learn More
+- Use the command 'npm run test' to run the tests. 
 
-To learn more about Next.js, take a look at the following resources:
+- Write tests and iteratively ensure they pass, along with all other tests. 
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Document any changes made to the code.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment: Coming soon!
