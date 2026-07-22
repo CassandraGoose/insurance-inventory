@@ -10,7 +10,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "test": "vitest run",
-    "migrate": "npx tsx db/scripts/migrate.ts"
+    "migrate": "npx tsx db/scripts/migrate.ts",
+    "seed": "tsx db/seed.ts"
   },
   "dependencies": {
     "@neondatabase/auth": "^0.4.2-beta",

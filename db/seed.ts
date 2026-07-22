@@ -23,8 +23,14 @@ const room_locations = [
 ];
 
 async function seedData() {
-  const insertedCoverageTypes = await db.insert(coverage_type).values(coverageTypes).returning();
-
+  const insertedCoverageTypes = await db.insert(coverage_type).values(coverageTypes).onConflictDoUpdate({
+    target: coverage_type.name,
+    set: {
+      name: coverage_type.name,
+    },
+  })
+  .returning();
+  
   const standardId = insertedCoverageTypes.find((t) => t.name === "standard")!.id;
   const specialtyId = insertedCoverageTypes.find((t) => t.name === "specialty")!.id;
 
@@ -47,8 +53,8 @@ async function seedData() {
     { name: "Collectible Miscellaneous", coverage_type_id: specialtyId },
   ];
 
-  await db.insert(category).values(categoryData);
-  await db.insert(room_location).values(room_locations);
+  await db.insert(category).values(categoryData).onConflictDoNothing();
+  await db.insert(room_location).values(room_locations).onConflictDoNothing();
 }
 
 seedData();
